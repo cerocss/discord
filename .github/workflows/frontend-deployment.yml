@@ -1,0 +1,46 @@
+name: Github Pages Discord Dashboard Deployment
+
+on:
+  workflow_dispatch:
+    inputs:
+      run-id:
+        description: "Workflow Run ID"
+        required: true
+        type: string
+
+jobs:
+  deployment:
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate GitHub App token
+        id: generate-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      - name: Download built pages
+        uses: actions/download-artifact@v4
+        with:
+          name: pages
+          github-token: ${{ steps.generate-token.outputs.token }}
+          repository: cerocss/discord-bot
+          run-id: ${{ inputs.run-id }}
+          path: dist
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
