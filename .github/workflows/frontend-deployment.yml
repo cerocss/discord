@@ -25,7 +25,7 @@ jobs:
           owner: ${{ github.repository_owner }}
 
       - name: Download built pages
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: pages
           github-token: ${{ steps.generate-token.outputs.token }}
